@@ -1,29 +1,47 @@
-document.addEventListener('DOMContentLoaded', function () {
-  var map = L.map('map').setView([49.0, 31.0], 6); // центр карти та зум
+import { postAddress } from './functions/Address.js';
 
+document.addEventListener('DOMContentLoaded', function () {
+  var map = L.map('map', {
+    doubleClickZoom: false,
+  }).setView([49.0, 31.0], 6);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution:
-      '\u0026copy; \u003ca href="https://www.openstreetmap.org/copyright"\u003eOpenStreetMap\u003c/a\u003e contributors',
+    attribution: '© OpenStreetMap contributors',
   }).addTo(map);
 
+  let marker;
   map.on('dblclick', function (e) {
     var coordinates = e.latlng;
-    var markerName = prompt('Enter marker name:');
+    const newCity = prompt('Enter the new city for the location:');
+    if (!newCity) return;
 
-    if (markerName !== null && markerName.trim() !== '') {
-      var marker = L.marker(coordinates).addTo(map);
+    const newStreet = prompt('Enter the new street for the location:');
+    if (!newStreet) return;
 
-      marker.bindPopup(`<b>${markerName}</b>`).openPopup();
+    var marker = L.marker(coordinates).addTo(map);
 
-      marker.on('dblclick', function () {
-        var confirmation = confirm(
-          'Are you sure you want to delete this marker?'
-        );
-        if (confirmation) {
-          map.removeLayer(marker);
-        }
+    marker
+      .bindPopup(
+        `<b>${newCity}</b><br>${newStreet}<br><button id="infoButton" class="detailsButton">Information</button>`
+      )
+      .openPopup();
+
+    document
+      .getElementById('infoButton')
+      .addEventListener('click', function () {
+        console.log('The button was pressed');
+        const addressId = address._id;
+        console.log('ID:', addressId);
+        window.open(`info.html?id=${addressId}`, '_blank');
       });
-    }
+
+    const data = {
+      city: newCity,
+      street: newStreet,
+      longitude: String(coordinates.lng),
+      latitude: String(coordinates.lat),
+    };
+
+    postAddress(data);
   });
 
   fetch('http://localhost:4444/addresses')
