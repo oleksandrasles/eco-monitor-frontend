@@ -1,298 +1,169 @@
 import {
-  logAddresses,
-  setupCounter,
-  logObjects,
-  logObjectAndIndicator,
-  logAddressAndObject,
-} from './functions.js';
+  getAddress,
+  deleteAddress,
+  renameAddress,
+} from './functions/Address.js';
 
-document.addEventListener('DOMContentLoaded', function () {
-  const urlParams = new URLSearchParams(window.location.search);
-  const addressId = urlParams.get('id');
-  console.log('addressId:', addressId);
+import {
+  getObject,
+  updateObject,
+  postObject,
+  deleteObject,
+} from './functions/Object.js';
 
-  fetch(`http://localhost:4444/addresses/${addressId}`)
-    .then(response => response.json())
-    .then(data => {
-      const { _id, city, street, objects } = data;
+import {
+  getIndicator,
+  postIndicator,
+  deleteIndicator,
+} from './functions/Indicator.js';
 
-      const citySpan = document.getElementById('city');
-      citySpan.textContent = city;
+const urlParams = new URLSearchParams(window.location.search);
+const addressId = urlParams.get('id');
 
-      const streetSpan = document.getElementById('street');
-      streetSpan.textContent = street;
+const address = await getAddress(addressId);
+console.log('addressId:', addressId);
 
-      const addObjectButton = document.getElementById('addObjectButton');
-      addObjectButton.addEventListener('click', async function () {
-        const objectName = prompt('Enter object name:');
-        if (objectName) {
-          const newObject = {
-            name: objectName,
-            addressId: addressId,
+const { _id, city, street, objectIds } = address;
+
+const citySpan = document.getElementById('city');
+const streetSpan = document.getElementById('street');
+
+citySpan.textContent = city;
+streetSpan.textContent = street;
+
+/*
+const deleteAddressButton = document.getElementById('delete_address');
+
+deleteAddressButton.addEventListener('click', async function () {
+  const response = await deleteAddress(addressId);
+  console.log(response);
+});
+*/
+
+const addObjectButton = document.getElementById('add_object');
+
+addObjectButton.addEventListener('click', async function () {
+  const objectName = prompt('Enter object name:');
+  if (objectName) {
+    const newObject = {
+      name: objectName,
+      addressId: addressId,
+    };
+
+    const response = await postObject(newObject);
+    console.log(response);
+  }
+});
+
+if (address.objects && address.objects.length > 0) {
+  for (let objectId of address.objects) {
+    const object = await getObject(objectId);
+    if (object) {
+      const objectsContainer = document.getElementById(
+        'objectDetailsContainer'
+      );
+
+      const objectContainer = document.createElement('div');
+
+      const objectNameParagraph = document.createElement('p');
+      objectNameParagraph.textContent = object.name;
+
+      const updateObjectButton = document.createElement('button');
+      updateObjectButton.textContent = 'Update Object';
+
+      updateObjectButton.addEventListener('click', async function () {
+        const objName = prompt('Enter Object name:', object.name);
+
+        if (objName) {
+          const updatedObject = {
+            name: objName,
           };
 
-          try {
-            const response = await fetch('http://localhost:4444/objects', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(newObject),
-            });
-
-            if (response.ok) {
-              console.log('Object created successfully!');
-            } else {
-              console.error('Failed to create object:', response.status);
-            }
-          } catch (error) {
-            console.error('Error creating object:', error);
-          }
+          const response = await updateObject(updatedObject, objectId);
+          console.log(response);
         }
       });
 
-      let isListExpanded = false;
+      const deleteObjectButton = document.createElement('button');
+      deleteObjectButton.textContent = 'Delete Object';
 
-      const deleteButton = document.getElementById('deleteObjectButton');
-      deleteButton.addEventListener('click', async function () {
-        try {
-          const data = await logAddressAndObject(addressId);
-          const objects = data.objects;
+      deleteObjectButton.addEventListener('click', async function () {
+        const response = await deleteObject(objectId);
+        console.log(response);
+      });
 
-          const objectListContainer = document.getElementById(
-            'objectListContainer'
-          );
-          objectListContainer.innerHTML = '';
+      const addIndicatorButton = document.createElement('button');
+      addIndicatorButton.textContent = 'Add Indicator';
 
-          if (isListExpanded) {
-            objectListContainer.innerHTML = '';
-            const popup = document.getElementById('popup');
-            popup.style.display = 'none';
-            isListExpanded = false;
-            return;
-          }
-          const chooseMessage = document.createElement('div');
-          chooseMessage.textContent = 'Choose object to delete:';
-          objectListContainer.appendChild(chooseMessage);
+      addIndicatorButton.addEventListener('click', async function () {
+        const indName = prompt('Enter indicator name:');
+        const indUnit = prompt('Enter indicator unit:');
+        const indType = prompt('Enter indicator type id:');
+        const indValueDate = prompt('Enter indicator value date:');
+        const indValue = prompt('Enter indicator value:');
 
-          objects.forEach(obj => {
-            const objectItem = document.createElement('div');
-            objectItem.textContent = obj.name;
-            objectItem.classList.add('object-item');
-            objectItem.addEventListener('click', async () => {
-              const confirmation = confirm(
-                `Are you sure you want to delete the object "${obj.name}"?`
-              );
-              if (confirmation) {
-                try {
-                  const response = await fetch(
-                    `http://localhost:4444/objects/${obj._id}`,
-                    {
-                      method: 'DELETE',
-                    }
-                  );
+        if (indName && indUnit && indType) {
+          const newIndicator = {
+            name: indName,
+            unit: indUnit,
+            objectId: objectId,
+            typeId: indType,
+            values: [{ date: indValueDate, value: indValue }],
+          };
 
-                  if (response.ok) {
-                    console.log('Object deleted successfully!');
-                    const objectIndex = objects.findIndex(
-                      item => item._id === obj._id
-                    );
-                    if (objectIndex !== -1) {
-                      objects.splice(objectIndex, 1);
-                      objectListContainer.removeChild(objectItem);
-                    }
-                  } else {
-                    console.error('Failed to delete object:', response.status);
-                  }
-                } catch (error) {
-                  console.error('Error deleting object:', error);
-                }
-              }
-            });
-
-            objectItem.addEventListener('mouseenter', function () {
-              objectItem.style.color = 'rgb(36, 52, 123);';
-            });
-
-            objectItem.addEventListener('mouseleave', function () {
-              objectItem.style.color = '';
-            });
-
-            objectListContainer.appendChild(objectItem);
-          });
-
-          const popup = document.getElementById('popup');
-          popup.style.display = 'block';
-          isListExpanded = true;
-        } catch (error) {
-          console.error('Error fetching objects:', error);
+          const response = await postIndicator(newIndicator);
+          console.log(response);
         }
       });
 
-      //renameObjectButton
-      const renameObjectButton = document.getElementById('renameObjectButton');
-      renameObjectButton.addEventListener('click', async function () {
-        try {
-          const data = await logAddressAndObject(addressId);
-          const objects = data.objects;
+      objectContainer.appendChild(objectNameParagraph);
 
-          const objectListContainer = document.getElementById(
-            'objectListContainer'
-          );
-          objectListContainer.innerHTML = '';
+      objectContainer.appendChild(updateObjectButton);
+      objectContainer.appendChild(deleteObjectButton);
+      objectContainer.appendChild(addIndicatorButton);
 
-          if (isListExpanded) {
-            objectListContainer.innerHTML = '';
-            const popup = document.getElementById('popup');
-            popup.style.display = 'none';
-            isListExpanded = false;
-            return;
+      const indicatorList = document.createElement('ul');
+      indicatorList.style.listStyleType = 'none';
+
+      if (object.indicators && object.indicators.length > 0) {
+        for (let indicatorId of object.indicators) {
+          const indicator = await getIndicator(indicatorId);
+
+          if (indicator) {
+            const deleteIndicatorButton = document.createElement('button');
+            deleteIndicatorButton.textContent = 'Delete Indicator';
+
+            deleteIndicatorButton.addEventListener('click', async function () {
+              const response = await deleteIndicator(indicatorId);
+              console.log(response);
+            });
+
+            const indicatorItem = document.createElement('li');
+            indicatorItem.textContent = ` ${indicator.name}: ${indicator.values[0].value} ${indicator.unit}`;
+
+            indicatorList.appendChild(indicatorItem);
+            indicatorList.appendChild(deleteIndicatorButton);
+
+            console.log('Indicator Name:', indicator.name);
+            console.log('Indicator Value:', indicator.values[0].value);
+            console.log('Indicator Unit:', indicator.unit);
           }
-
-          const chooseMessage = document.createElement('div');
-          chooseMessage.textContent = 'Choose object to rename:';
-          objectListContainer.appendChild(chooseMessage);
-
-          objects.forEach(obj => {
-            const objectItem = document.createElement('div');
-            objectItem.textContent = obj.name;
-            objectItem.classList.add('object-item');
-            objectItem.addEventListener('click', async () => {
-              const newName = prompt('Enter the new name for the object:');
-              if (!newName) return;
-
-              try {
-                const response = await fetch(
-                  `http://localhost:4444/objects/${obj._id}`,
-                  {
-                    method: 'PATCH',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name: newName }),
-                  }
-                );
-
-                if (response.ok) {
-                  console.log('Object renamed successfully!');
-                } else {
-                  console.error('Failed to rename object:', response.status);
-                }
-              } catch (error) {
-                console.error('Error renaming object:', error);
-              }
-            });
-
-            objectItem.addEventListener('mouseenter', function () {
-              objectItem.style.color = 'rgb(36, 52, 123);';
-            });
-
-            objectItem.addEventListener('mouseleave', function () {
-              objectItem.style.color = '';
-            });
-
-            objectListContainer.appendChild(objectItem);
-          });
-
-          const popup = document.getElementById('popup');
-          popup.style.display = 'block';
-          isListExpanded = true;
-        } catch (error) {
-          console.error('Error fetching objects:', error);
         }
-      });
+      }
 
-      //renameLocationButton
-      const renameLocationButton = document.getElementById(
-        'renameLocationButton'
-      );
-      renameLocationButton.addEventListener('click', async function () {
-        const newCity = prompt('Enter the new city for the location:');
-        if (!newCity) return;
+      objectContainer.appendChild(indicatorList);
+      objectsContainer.appendChild(objectContainer);
+    }
+  }
+}
 
-        const newStreet = prompt('Enter the new street for the location:');
-        if (!newStreet) return;
+const renameLocationButton = document.getElementById('renameLocationButton');
+renameLocationButton.addEventListener('click', async function () {
+  const newCity = prompt('Enter the new city for the location:');
+  if (!newCity) return;
 
-        try {
-          const response = await fetch(
-            `http://localhost:4444/addresses/${addressId}`,
-            {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ city: newCity, street: newStreet }),
-            }
-          );
+  const newStreet = prompt('Enter the new street for the location:');
+  if (!newStreet) return;
 
-          if (response.ok) {
-            console.log('Location renamed successfully!');
-            const updatedLocation = await response.json();
-
-            const cityElement = document.getElementById('city');
-            cityElement.textContent = updatedLocation.city;
-
-            const streetElement = document.getElementById('street');
-            streetElement.textContent = updatedLocation.street;
-          } else {
-            console.error('Failed to rename location:', response.status);
-          }
-        } catch (error) {
-          console.error('Error renaming location:', error);
-        }
-      });
-
-      logAddressAndObject(addressId)
-        .then(data => {
-          console.log('Object:', data.objects);
-
-          const objectsContainer = document.getElementById(
-            'objectDetailsContainer'
-          );
-          objectsContainer.innerHTML = '';
-          if (data.objects && data.objects.length > 0) {
-            const promises = data.objects.map(object =>
-              logObjectAndIndicator(object._id)
-            );
-
-            Promise.all(promises)
-              .then(indicatorDataArray => {
-                indicatorDataArray.forEach((indicatorData, index) => {
-                  const object = data.objects[index];
-
-                  const objectContainer = document.createElement('div');
-                  const objectNameParagraph = document.createElement('p');
-                  objectNameParagraph.textContent = object.name;
-                  objectContainer.appendChild(objectNameParagraph);
-
-                  const indicatorList = document.createElement('ul');
-                  indicatorList.style.listStyleType = 'none';
-                  indicatorData.indicators.forEach(indicator => {
-                    const indicatorItem = document.createElement('li');
-                    indicatorItem.textContent = ` ${indicator.name}: ${indicator.value} ${indicator.unit}`;
-                    indicatorList.appendChild(indicatorItem);
-
-                    console.log('Indicator Name:', indicator.name);
-                    console.log('Indicator Value:', indicator.value);
-                    console.log('Indicator Unit:', indicator.unit);
-                  });
-
-                  objectContainer.appendChild(indicatorList);
-                  objectsContainer.appendChild(objectContainer);
-                });
-              })
-              .catch(error => {
-                console.error('Error getting indicator data:', error);
-              });
-          } else {
-            const errorMessage = document.createElement('p');
-            errorMessage.textContent = 'No objects found.';
-            objectsContainer.appendChild(errorMessage);
-          }
-        })
-        .catch(error => {
-          console.error('Error getting data:', error);
-        });
-    })
-    .catch(error => console.error('Error getting data:', error));
+  await renameAddress(addressId, newCity, newStreet);
 });
