@@ -1,27 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Address Information</title>
-    <link rel="stylesheet" href="info.css">
-</head>
-<body>
+    <link rel="stylesheet" href="info.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  </head>
+  <body>
     <script type="module" src="http://localhost:5173/info.js"></script>
     <h2>Location</h2>
     <div class="address-info">
-        <p><span id="city"></span>, <span id="street"></span></p>
+      <p><span id="city"></span>, <span id="street"></span></p>
+      <button id="addObjectButton">Add object</button>
+      <button id="deleteObjectButton">Delete object</button>
+
+      <button id="renameObjectButton">Rename object</button>
+      <button id="renameLocationButton">Rename location</button>
+
+      <div id="popup" style="display: none">
+        <div id="objectListContainer"></div>
+      </div>
+
+      <div id="popup-indicator" style="display: none">
+        <div id="objectListContainer2"></div>
+      </div>
+
+      <div id="popup-indicators" style="display: none">
+        <div id="objectListContainer3"></div>
+      </div>
     </div>
-        <div id="objectDetailsContainer">
-            <table id="objectsTable">
-                <thead>
-                    <tr>
-                        
-                    </tr>
-                </thead>
-                
-            </table>
-        </div>
-    
-</body>
+    <div id="objectDetailsContainer">
+      <table id="objectsTable">
+        <thead>
+          <tr></tr>
+        </thead>
+      </table>
+    </div>
+  </body>
 </html>

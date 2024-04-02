@@ -51,49 +51,194 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       });
 
+      let isListExpanded = false;
+
       const deleteButton = document.getElementById('deleteObjectButton');
       deleteButton.addEventListener('click', async function () {
         try {
           const data = await logAddressAndObject(addressId);
           const objects = data.objects;
 
-          const selectedObjectName = prompt(
-            'Select object to delete:\n' +
-              objects.map(obj => obj.name).join('\n')
+          const objectListContainer = document.getElementById(
+            'objectListContainer'
           );
-          if (!selectedObjectName) return;
+          objectListContainer.innerHTML = '';
 
-          const selectedObject = objects.find(
-            obj => obj.name === selectedObjectName
+          if (isListExpanded) {
+            objectListContainer.innerHTML = '';
+            const popup = document.getElementById('popup');
+            popup.style.display = 'none';
+            isListExpanded = false;
+            return;
+          }
+          const chooseMessage = document.createElement('div');
+          chooseMessage.textContent = 'Choose object to delete:';
+          objectListContainer.appendChild(chooseMessage);
+
+          objects.forEach(obj => {
+            const objectItem = document.createElement('div');
+            objectItem.textContent = obj.name;
+            objectItem.classList.add('object-item');
+            objectItem.addEventListener('click', async () => {
+              const confirmation = confirm(
+                `Are you sure you want to delete the object "${obj.name}"?`
+              );
+              if (confirmation) {
+                try {
+                  const response = await fetch(
+                    `http://localhost:4444/objects/${obj._id}`,
+                    {
+                      method: 'DELETE',
+                    }
+                  );
+
+                  if (response.ok) {
+                    console.log('Object deleted successfully!');
+                    const objectIndex = objects.findIndex(
+                      item => item._id === obj._id
+                    );
+                    if (objectIndex !== -1) {
+                      objects.splice(objectIndex, 1);
+                      objectListContainer.removeChild(objectItem);
+                    }
+                  } else {
+                    console.error('Failed to delete object:', response.status);
+                  }
+                } catch (error) {
+                  console.error('Error deleting object:', error);
+                }
+              }
+            });
+
+            objectItem.addEventListener('mouseenter', function () {
+              objectItem.style.color = 'rgb(36, 52, 123);';
+            });
+
+            objectItem.addEventListener('mouseleave', function () {
+              objectItem.style.color = '';
+            });
+
+            objectListContainer.appendChild(objectItem);
+          });
+
+          const popup = document.getElementById('popup');
+          popup.style.display = 'block';
+          isListExpanded = true;
+        } catch (error) {
+          console.error('Error fetching objects:', error);
+        }
+      });
+
+      //renameObjectButton
+      const renameObjectButton = document.getElementById('renameObjectButton');
+      renameObjectButton.addEventListener('click', async function () {
+        try {
+          const data = await logAddressAndObject(addressId);
+          const objects = data.objects;
+
+          const objectListContainer = document.getElementById(
+            'objectListContainer'
           );
-          if (!selectedObject) {
-            console.error('Object not found:', selectedObjectName);
+          objectListContainer.innerHTML = '';
+
+          if (isListExpanded) {
+            objectListContainer.innerHTML = '';
+            const popup = document.getElementById('popup');
+            popup.style.display = 'none';
+            isListExpanded = false;
             return;
           }
 
-          const confirmation = confirm(
-            `Are you sure you want to delete the object "${selectedObjectName}"?`
-          );
-          if (confirmation) {
-            const response = await fetch(
-              `http://localhost:4444/objects/${selectedObject._id}`,
-              {
-                method: 'DELETE',
-              }
-            );
+          const chooseMessage = document.createElement('div');
+          chooseMessage.textContent = 'Choose object to rename:';
+          objectListContainer.appendChild(chooseMessage);
 
-            if (response.ok) {
-              console.log('Object deleted successfully!');
-              const objectIndex = objects.findIndex(
-                obj => obj.name === selectedObjectName
-              );
-              objects.splice(objectIndex, 1);
-            } else {
-              console.error('Failed to delete object:', response.status);
+          objects.forEach(obj => {
+            const objectItem = document.createElement('div');
+            objectItem.textContent = obj.name;
+            objectItem.classList.add('object-item');
+            objectItem.addEventListener('click', async () => {
+              const newName = prompt('Enter the new name for the object:');
+              if (!newName) return;
+
+              try {
+                const response = await fetch(
+                  `http://localhost:4444/objects/${obj._id}`,
+                  {
+                    method: 'PATCH',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: newName }),
+                  }
+                );
+
+                if (response.ok) {
+                  console.log('Object renamed successfully!');
+                } else {
+                  console.error('Failed to rename object:', response.status);
+                }
+              } catch (error) {
+                console.error('Error renaming object:', error);
+              }
+            });
+
+            objectItem.addEventListener('mouseenter', function () {
+              objectItem.style.color = 'rgb(36, 52, 123);';
+            });
+
+            objectItem.addEventListener('mouseleave', function () {
+              objectItem.style.color = '';
+            });
+
+            objectListContainer.appendChild(objectItem);
+          });
+
+          const popup = document.getElementById('popup');
+          popup.style.display = 'block';
+          isListExpanded = true;
+        } catch (error) {
+          console.error('Error fetching objects:', error);
+        }
+      });
+
+      //renameLocationButton
+      const renameLocationButton = document.getElementById(
+        'renameLocationButton'
+      );
+      renameLocationButton.addEventListener('click', async function () {
+        const newCity = prompt('Enter the new city for the location:');
+        if (!newCity) return;
+
+        const newStreet = prompt('Enter the new street for the location:');
+        if (!newStreet) return;
+
+        try {
+          const response = await fetch(
+            `http://localhost:4444/addresses/${addressId}`,
+            {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ city: newCity, street: newStreet }),
             }
+          );
+
+          if (response.ok) {
+            console.log('Location renamed successfully!');
+            const updatedLocation = await response.json();
+
+            const cityElement = document.getElementById('city');
+            cityElement.textContent = updatedLocation.city;
+
+            const streetElement = document.getElementById('street');
+            streetElement.textContent = updatedLocation.street;
+          } else {
+            console.error('Failed to rename location:', response.status);
           }
         } catch (error) {
-          console.error('Error deleting object:', error);
+          console.error('Error renaming location:', error);
         }
       });
 
