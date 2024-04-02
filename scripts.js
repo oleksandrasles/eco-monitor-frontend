@@ -1,3 +1,5 @@
+import { postAddress } from "./functions/Address";
+
 document.addEventListener('DOMContentLoaded', function () {
   var map = L.map('map').setView([49.0, 31.0], 6); // центр карти та зум
 
@@ -6,24 +8,20 @@ document.addEventListener('DOMContentLoaded', function () {
       '\u0026copy; \u003ca href="https://www.openstreetmap.org/copyright"\u003eOpenStreetMap\u003c/a\u003e contributors',
   }).addTo(map);
 
-  map.on('dblclick', function (e) {
-    var coordinates = e.latlng;
-    var markerName = prompt('Enter marker name:');
+  map.on('dblclick', async function (e) {
+    var coords = e.latlng;
 
-    if (markerName !== null && markerName.trim() !== '') {
-      var marker = L.marker(coordinates).addTo(map);
+    console.log(e);
 
-      marker.bindPopup(`<b>${markerName}</b>`).openPopup();
-
-      marker.on('dblclick', function () {
-        var confirmation = confirm(
-          'Are you sure you want to delete this marker?'
-        );
-        if (confirmation) {
-          map.removeLayer(marker);
-        }
-      });
+    const data = {
+      city: "test",
+      street: "test",
+      longitude: String(coords.lng),
+      latitude: String(coords.lat)
     }
+
+    const response = await postAddress(data);
+    console.log(response);
   });
 
   fetch('http://localhost:4444/addresses')
