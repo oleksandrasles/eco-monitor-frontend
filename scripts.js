@@ -13,42 +13,31 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   const typesDiv = document.getElementById("types");
   
-  const all = document.createElement("p");
-  all.addEventListener('click', function(e) {
+  const allTypeButton = document.createElement("button");
+
+  allTypeButton.addEventListener('click', function(e) {
     localStorage.setItem("type", "all all");
-  })
-  all.textContent = "All";
-  typesDiv.appendChild(all);
+    location.reload();
+  });
+
+  allTypeButton.textContent = "All";
+  typesDiv.appendChild(allTypeButton);
 
   types.forEach(type => {
-    const typeP = document.createElement("p");
-    typeP.textContent += type.name;
-    typeP.addEventListener('click', function(e) {
+    const typeButton = document.createElement("button");
+    typeButton.textContent += type.name;
+    typeButton.addEventListener('click', function(e) {
       localStorage.setItem("type", type._id + " " + type.name);
-    })
+      location.reload();
+    });
 
-    typesDiv.appendChild(typeP);
-  })
+    typesDiv.appendChild(typeButton);
+  });
 
   const current = document.getElementById("current");
   const curType = localStorage.getItem("type");
   current.textContent += curType.split(" ")[1];
-  /*
-  const all = document.getElementById("all");
-  all.addEventListener('click', function(e) {
-    localStorage.setItem("type", "all");
-  })
 
-  const airQuality = document.getElementById("air-quality");
-  airQuality.addEventListener('click', function(e) {
-    localStorage.setItem("type", "air-quality");
-  })
-
-  const radiation = document.getElementById("radiation");
-  radiation.addEventListener('click', function(e) {
-    localStorage.setItem("type", "radiation");
-  })
-  */
   map.on('dblclick', function (e) {
     var coordinates = e.latlng;
     const newCity = prompt('Enter the new city for the location:');
@@ -82,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     };
 
     postAddress(data);
+    location.reload();
   });
 
   const addresses = await getAddresses();
@@ -125,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       if(confirmation) {
         const response = await deleteAddress(_id);
         map.removeLayer(marker);
-        //console.log(response);
+        console.log(response);
       }
       console.log(e, confirmation);
     });

@@ -7,6 +7,32 @@ h1 {
     margin-bottom: 10px;
 }
 
+button {
+    margin: 0 5px;
+    padding: 5px;
+    border-radius: 5px;
+
+    background-color: white;
+    cursor: pointer;
+}
+
+#objectContainer {
+    width: 50%;
+    margin: 5% 0;
+    padding: 10px;
+
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+li {
+    padding: 5px;
+}
+
+#deleteIndicatorButton {
+    margin-bottom: 15px;
+}
+
 .address-info {
     border: 1px solid #ccc;
     padding: 20px;

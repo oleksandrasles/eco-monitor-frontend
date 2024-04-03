@@ -71,6 +71,7 @@ if (address.objects && address.objects.length > 0) {
       );
 
       const objectContainer = document.createElement('div');
+      objectContainer.id = "objectContainer";
 
       const objectNameParagraph = document.createElement('p');
       objectNameParagraph.textContent = object.name;
@@ -96,6 +97,7 @@ if (address.objects && address.objects.length > 0) {
 
       deleteObjectButton.addEventListener('click', async function () {
         const response = await deleteObject(objectId);
+        location.reload();
         console.log(response);
       });
 
@@ -119,6 +121,7 @@ if (address.objects && address.objects.length > 0) {
           };
 
           const response = await postIndicator(newIndicator);
+          location.reload();
           console.log(response);
         }
       });
@@ -151,15 +154,23 @@ if (address.objects && address.objects.length > 0) {
             console.log("types: ", type, indicator.type);
             const deleteIndicatorButton = document.createElement('button');
             deleteIndicatorButton.textContent = 'Delete Indicator';
+            deleteIndicatorButton.id = "deleteIndicatorButton";
 
             deleteIndicatorButton.addEventListener('click', async function () {
               const response = await deleteIndicator(indicatorId);
+              location.reload();
               console.log(response);
             });
 
             const indicatorItem = document.createElement('li');
-            indicatorItem.textContent = ` ${indicator.name}: ${indicator.values[0].value} ${indicator.unit}`;
-
+            indicatorItem.textContent = ` ${indicator.name}: `;
+            
+            indicator.values.forEach(value => {
+              const indicatorValue = document.createElement('p');
+              indicatorValue.textContent =`${value.date.slice(0, 10)}: ${value.value} ${indicator.unit}`;
+              indicatorItem.appendChild(indicatorValue);
+            })
+            
             indicatorList.appendChild(indicatorItem);
             indicatorList.appendChild(deleteIndicatorButton);
 
@@ -169,10 +180,19 @@ if (address.objects && address.objects.length > 0) {
           }
         }
       }
+
+      const p = document.createElement("p");
+      p.textContent = "Indicators:";
+      objectContainer.appendChild(p);
+
       if(indicatorList.children.length > 0) {
         objectContainer.appendChild(indicatorList);
-        objectsContainer.appendChild(objectContainer);
-      };
+      } else {
+        const p = document.createElement("p");
+        p.textContent = "Zero indicators with this type";
+        objectContainer.appendChild(p);
+      }
+      objectsContainer.appendChild(objectContainer);
     }
   }
   
