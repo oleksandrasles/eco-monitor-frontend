@@ -1,21 +1,55 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+#types {
+  position: absolute;
+  top: 15%;
+  bottom: 0;
+  right: 0;
+  left: 0.75%;
 
-html, body {width: 100%;height: 100%;margin: 0;padding: 0; }
-#map {position:absolute;top:0;bottom:0;right:0;left:0;}
+  width: 12.5%;
+  height: fit-content;
+
+  padding: 5px 5px 0px 5px;
+
+  border-radius: 5%;
+  background-color: #a7b7a8;
+
+  z-index: 999;
+}
+
+#types p {
+  cursor: pointer;
+}
+
+#bold {
+  font-weight: bold;
+}
 
 .detailsButton {
-    border: 1px solid black;
-    border-radius: 10px;
-    color:black;
-    padding: 2px 2px;
-    margin-top: 2px;
-    text-align: center;
-    text-decoration: none;
-    font-size: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-family: Arial, sans-serif; 
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  color: #333;
+  text-align: center;
+  width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 .detailsButton:hover {
-    background-color: #a7b7a8; 
-    
+  background-color: #e6e6e6;
+  border-color: #999;
+  color: #000;
 }
