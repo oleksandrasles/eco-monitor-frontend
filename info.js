@@ -31,7 +31,6 @@ const streetSpan = document.getElementById('street');
 citySpan.textContent = city;
 streetSpan.textContent = street;
 
-
 const deleteAddressButton = document.getElementById('delete_address');
 
 deleteAddressButton.addEventListener('click', async function () {

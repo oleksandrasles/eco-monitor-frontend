@@ -1,65 +1,94 @@
-import { postAddress } from "./functions/Address";
+import { deleteAddress, getAddresses, postAddress } from './functions/Address.js';
 
-document.addEventListener('DOMContentLoaded', function () {
-  var map = L.map('map').setView([49.0, 31.0], 6); // центр карти та зум
-
+document.addEventListener('DOMContentLoaded', async function () {
+  var map = L.map('map', {
+    doubleClickZoom: false,
+  }).setView([49.0, 31.0], 6);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution:
-      '\u0026copy; \u003ca href="https://www.openstreetmap.org/copyright"\u003eOpenStreetMap\u003c/a\u003e contributors',
+    attribution: '© OpenStreetMap contributors',
   }).addTo(map);
 
-  map.on('dblclick', async function (e) {
-    var coords = e.latlng;
+  map.on('dblclick', function (e) {
+    var coordinates = e.latlng;
+    const newCity = prompt('Enter the new city for the location:');
+    if (!newCity) return;
 
-    console.log(e);
+    const newStreet = prompt('Enter the new street for the location:');
+    if (!newStreet) return;
+
+    var marker = L.marker(coordinates).addTo(map);
+
+    marker
+      .bindPopup(
+        `<b>${newCity}</b><br>${newStreet}<br><button id="infoButton" class="detailsButton">Information</button>`
+      )
+      .openPopup();
+
+    document
+      .getElementById('infoButton')
+      .addEventListener('click', function () {
+        console.log('The button was pressed');
+        const addressId = address._id;
+        console.log('ID:', addressId);
+        window.open(`info.html?id=${addressId}`, '_blank');
+      });
 
     const data = {
-      city: "test",
-      street: "test",
-      longitude: String(coords.lng),
-      latitude: String(coords.lat)
-    }
+      city: newCity,
+      street: newStreet,
+      longitude: String(coordinates.lng),
+      latitude: String(coordinates.lat),
+    };
 
-    const response = await postAddress(data);
-    console.log(response);
+    postAddress(data);
   });
 
-  fetch('http://localhost:4444/addresses')
-    .then(response => response.json())
-    .then(data => {
-      data.forEach(address => {
-        const { _id, city, street, latitude, longitude } = address;
-        var marker = L.marker([latitude, longitude])
-          .addTo(map)
-          .bindPopup(`<b>${city}</b><br>${street}<br>`, { autoClose: false });
+  const addresses = await getAddresses();
 
-        marker.on('click', function (e) {
-          var popupContent = e.target._popup.getContent();
+  addresses.forEach(async address => {
+    const { _id, city, street, latitude, longitude } = address;
+    var marker = L.marker([latitude, longitude])
+      .addTo(map)
+      .bindPopup(`<b>${city}</b><br>${street}<br>`, { autoClose: false });
 
-          if (typeof popupContent === 'string') {
-            var tempDiv = document.createElement('div');
-            tempDiv.innerHTML = popupContent;
+    marker.on('click', function (e) {
+      var popupContent = e.target._popup.getContent();
 
-            var button = document.createElement('button');
-            button.textContent = 'Information';
-            button.classList.add('detailsButton');
+      if (typeof popupContent === 'string') {
+        var tempDiv = document.createElement('div');
+        tempDiv.innerHTML = popupContent;
 
-            button.addEventListener('click', function (event) {
-              console.log('The button was pressed');
-              const addressId = address._id;
-              console.log('ID:', addressId);
-              window.open(`info.html?id=${addressId}`, '_blank');
-            });
+        var button = document.createElement('button');
+        button.textContent = 'Information';
+        button.classList.add('detailsButton');
 
-            tempDiv.appendChild(button);
-
-            e.target._popup.setContent(tempDiv);
-          } else {
-            console.error('The content of the popup is not text');
-          }
+        button.addEventListener('click', function (event) {
+          console.log('The button was pressed');
+          const addressId = address._id;
+          console.log('ID:', addressId);
+          window.open(`info.html?id=${addressId}`, '_blank');
         });
-        console.log(address);
-      });
-    })
-    .catch(error => console.error('Error getting data', error));
+
+        tempDiv.appendChild(button);
+
+        e.target._popup.setContent(tempDiv);
+      }
+    });
+
+    let confirmation = false;
+
+    marker.on('dblclick', async function (e) {
+      confirmation = confirm(
+        'Are you sure you want to delete this marker?'
+      );
+      if(confirmation) {
+        const response = await deleteAddress(_id);
+        map.removeLayer(marker);
+        //console.log(response);
+      }
+      console.log(e, confirmation);
+    });
+
+    console.log(address);
+  });
 });
