@@ -123,12 +123,23 @@ if (address.objects && address.objects.length > 0) {
         }
       });
 
+      const addChartButton = document.createElement('button');
+      addChartButton.textContent = 'Chart';
+
+      addChartButton.addEventListener('click', async function () {
+        const urlWithoutParams =
+          window.location.origin + window.location.pathname;
+        const urlWithParams = `chart.html?objectId=${objectId}`;
+        window.open(urlWithParams, '_blank');
+      });
+
       objectContainer.appendChild(objectNameParagraph);
 
       objectContainer.appendChild(updateObjectButton);
       objectContainer.appendChild(deleteObjectButton);
       objectContainer.appendChild(addIndicatorButton);
-
+      objectContainer.appendChild(addChartButton);
+      
       const indicatorList = document.createElement('ul');
       indicatorList.style.listStyleType = 'none';
 

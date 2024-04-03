@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   types.forEach(type => {
     const typeP = document.createElement("p");
-    typeP.textContent = type.name;
+    typeP.textContent += type.name;
     typeP.addEventListener('click', function(e) {
       localStorage.setItem("type", type._id + " " + type.name);
     })
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   const current = document.getElementById("current");
   const curType = localStorage.getItem("type");
-  current.textContent = curType.split(" ")[1];
+  current.textContent += curType.split(" ")[1];
   /*
   const all = document.getElementById("all");
   all.addEventListener('click', function(e) {

@@ -1,0 +1,40 @@
+.select-container {
+    position: relative;
+    margin-top: 10px;
+  }
+  
+  .select-container select {
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  body {
+    justify-content: center;
+    align-items: center;
+  }
+  
+  canvas {
+    width: 50%;
+    height: 300px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  select {
+    width: 200px;
+    height: 30px;
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+  }
+  
+  option:checked {
+    background-color: #007bff;
+    color: #fff;
+  }
