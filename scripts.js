@@ -1,4 +1,5 @@
 import { deleteAddress, getAddresses, postAddress } from './functions/Address.js';
+import { getTypes } from './functions/Type.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
   var map = L.map('map', {
@@ -8,6 +9,46 @@ document.addEventListener('DOMContentLoaded', async function () {
     attribution: '© OpenStreetMap contributors',
   }).addTo(map);
 
+  const types = await getTypes();
+
+  const typesDiv = document.getElementById("types");
+  
+  const all = document.createElement("p");
+  all.addEventListener('click', function(e) {
+    localStorage.setItem("type", "all all");
+  })
+  all.textContent = "All";
+  typesDiv.appendChild(all);
+
+  types.forEach(type => {
+    const typeP = document.createElement("p");
+    typeP.textContent = type.name;
+    typeP.addEventListener('click', function(e) {
+      localStorage.setItem("type", type._id + " " + type.name);
+    })
+
+    typesDiv.appendChild(typeP);
+  })
+
+  const current = document.getElementById("current");
+  const curType = localStorage.getItem("type");
+  current.textContent = curType.split(" ")[1];
+  /*
+  const all = document.getElementById("all");
+  all.addEventListener('click', function(e) {
+    localStorage.setItem("type", "all");
+  })
+
+  const airQuality = document.getElementById("air-quality");
+  airQuality.addEventListener('click', function(e) {
+    localStorage.setItem("type", "air-quality");
+  })
+
+  const radiation = document.getElementById("radiation");
+  radiation.addEventListener('click', function(e) {
+    localStorage.setItem("type", "radiation");
+  })
+  */
   map.on('dblclick', function (e) {
     var coordinates = e.latlng;
     const newCity = prompt('Enter the new city for the location:');

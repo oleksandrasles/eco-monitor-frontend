@@ -19,6 +19,8 @@ import {
 
 const urlParams = new URLSearchParams(window.location.search);
 const addressId = urlParams.get('id');
+const type = localStorage.getItem("type").split(" ");
+console.log(type)
 
 const address = await getAddress(addressId);
 console.log('addressId:', addressId);
@@ -27,9 +29,11 @@ const { city, street } = address;
 
 const citySpan = document.getElementById('city');
 const streetSpan = document.getElementById('street');
+const currentTypeSpan = document.getElementById('currentType');
 
 citySpan.textContent = city;
 streetSpan.textContent = street;
+currentTypeSpan.textContent = "Current type: " + type[1];
 
 const deleteAddressButton = document.getElementById('delete_address');
 
@@ -132,7 +136,8 @@ if (address.objects && address.objects.length > 0) {
         for (let indicatorId of object.indicators) {
           const indicator = await getIndicator(indicatorId);
 
-          if (indicator) {
+          if (indicator && (indicator.type == type[0] || type[0] == "all")) {
+            console.log("types: ", type, indicator.type);
             const deleteIndicatorButton = document.createElement('button');
             deleteIndicatorButton.textContent = 'Delete Indicator';
 
@@ -153,10 +158,18 @@ if (address.objects && address.objects.length > 0) {
           }
         }
       }
-
-      objectContainer.appendChild(indicatorList);
-      objectsContainer.appendChild(objectContainer);
+      if(indicatorList.children.length > 0) {
+        objectContainer.appendChild(indicatorList);
+        objectsContainer.appendChild(objectContainer);
+      };
     }
+  }
+  
+  const objectDetailsContainer = document.getElementById("objectDetailsContainer");
+  if(objectDetailsContainer.children.length == 0) {
+    const p = document.createElement("p");
+    p.textContent = "Zero objects";
+    objectDetailsContainer.appendChild(p);
   }
 }
 
