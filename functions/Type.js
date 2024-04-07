@@ -28,6 +28,21 @@ export async function getType(typeId) {
   }
 }
 
+export async function getTypeByName(typeName) {
+  try {
+    const response = await fetch(`http://localhost:4444/typesByName/${typeName}`, {
+      headers: {
+        accept: 'application/json',
+        'User-agent': 'eco-monitor',
+      },
+    });
+    const type = await response.json();
+    return type;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function postType(data) {
   try {
     const response = await fetch(`http://localhost:4444/types/`, {

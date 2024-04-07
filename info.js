@@ -17,6 +17,8 @@ import {
   deleteIndicator,
 } from './functions/Indicator.js';
 
+import { getTypeByName } from './functions/Type.js';
+
 const urlParams = new URLSearchParams(window.location.search);
 const addressId = urlParams.get('id');
 const type = localStorage.getItem("type").split(" ");
@@ -88,6 +90,7 @@ if (address.objects && address.objects.length > 0) {
           };
 
           const response = await updateObject(updatedObject, objectId);
+          location.reload();
           console.log(response);
         }
       });
@@ -105,18 +108,20 @@ if (address.objects && address.objects.length > 0) {
       addIndicatorButton.textContent = 'Add Indicator';
 
       addIndicatorButton.addEventListener('click', async function () {
-        const indName = prompt('Enter indicator name:');
-        const indUnit = prompt('Enter indicator unit:');
-        const indType = prompt('Enter indicator type id:');
+        const indName = prompt("Enter indicator name: ");
+        const indType = prompt('Enter indicator type:');
         const indValueDate = prompt('Enter indicator value date:');
         const indValue = prompt('Enter indicator value:');
 
-        if (indName && indUnit && indType) {
+        const type = await getTypeByName(indType);
+        console.log(type)
+
+        if (indName && type) {
           const newIndicator = {
             name: indName,
-            unit: indUnit,
+            unit: type.unit,
             objectId: objectId,
-            typeId: indType,
+            typeId: type._id,
             values: [{ date: indValueDate, value: indValue }],
           };
 
