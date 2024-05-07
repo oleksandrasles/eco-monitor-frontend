@@ -219,3 +219,4 @@ renameLocationButton.addEventListener('click', async function () {
 
   await renameAddress(addressId, newCity, newStreet);
 });
+

@@ -57,3 +57,28 @@ button {
     background-color: #a7b7a8; 
     
 }
+
+.lvl_1 {
+	color: black;
+	background-color: lightgreen;
+}
+
+.lvl_2 {
+	color: black;
+	background-color: yellow;
+}
+
+.lvl_3 {
+	color: black;
+	background-color: orange;
+}
+
+.lvl_4 {
+	color: black;
+	background-color: darkorange;
+}
+
+.lvl_5 {
+	color: black;
+	background-color: red;
+}
