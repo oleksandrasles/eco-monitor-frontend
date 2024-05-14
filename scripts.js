@@ -4,9 +4,7 @@ import {
   getAddresses,
   postAddress,
 } from "./functions/Address.js";
-import { getIndicator } from "./functions/Indicator.js";
-import { getObject } from "./functions/Object.js";
-import { getTypes } from "./functions/Type.js";
+import { getTypes, getType } from "./functions/Type.js";
 
 document.addEventListener("DOMContentLoaded", async function () {
   var map = L.map("map", {
@@ -45,6 +43,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const curType = localStorage.getItem("type");
   const curTypeValue = curType.split(" ")[1];
   current.textContent += curType.split(" ")[1];
+  const typeUnit = await getType(curType.split(" ")[0]);
 
   map.on("dblclick", function (e) {
     var coordinates = e.latlng;
@@ -88,7 +87,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const { _id, city, street, latitude, longitude } = address;
     var marker = L.marker([latitude, longitude])
       .addTo(map)
-      .bindPopup(`<b>${city}</b><br>${street}<br>`, { autoClose: false });
+      .bindPopup(`<b>${city}</b><br>${street}<br>`, { autoClose: false, minWidth: 150 });
 
     marker.on("click", async function (e) {
       var popupContent = e.target._popup.getContent();
@@ -99,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (curTypeValue == "air-quality") {
           for (let objectId of address.objects) {
             const AIR = await calculateAIR(objectId); //(3.1)
-            if (AIR) {
+            if (AIR.value) {
               val = AIR;
             }
           }
@@ -107,7 +106,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (curTypeValue == "water-quality") {
           for (let objectId of address.objects) {
             const WTR = await calculateWTR(objectId); //(3.3)
-            if (WTR) {
+            if (WTR.value) {
               val = WTR;
             }
           }
@@ -123,7 +122,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (curTypeValue == "radiation") {
           for (let objectId of address.objects) {
             const RAD = await calculateRAD(objectId); //(3.5)
-            if (RAD) {
+            if (RAD.value) {
               val = RAD;
             }
           }
@@ -131,15 +130,15 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (curTypeValue == "economic") {
           for (let objectId of address.objects) {
             const PX = await calculatePX(objectId); //price index
-            if (PX) {
+            if (PX.value) {
               val = PX;
             }
           }
         }
-        if (curTypeValue == "health") {
+        if (curTypeValue == "health-quality") {
           for (let objectId of address.objects) {
             const HLTH = await calculateHLTH(objectId); //Показник народжуваності = число народжень на рік / кількість населення
-            if (HLTH) {
+            if (HLTH.value) {
               val = HLTH;
             }
           }
@@ -147,7 +146,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (curTypeValue == "energy") {
           for (let objectId of address.objects) {
             const P = await calculateP(objectId); //(3.10)
-            if (P) {
+            if (P.value) {
               val = P;
             }
           }
@@ -166,7 +165,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         button.classList.add("detailsButton");
 
         var valP = document.createElement("p");
-        valP.textContent = val.value;
+        valP.textContent = val.value + " " + typeUnit.unit;
 
         if (val.level == 1) valP.classList.add("lvl_1");
         else if (val.level == 2) valP.classList.add("lvl_2");

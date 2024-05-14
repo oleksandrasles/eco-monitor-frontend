@@ -30,7 +30,7 @@ export async function calculateAIR(objectId) {
 	else if(AIR >= 0.6 && AIR < 1) level = 2;
 	else if(AIR >= 1 && AIR < 1.5) level = 3;
 	else if(AIR >= 1.5) level = 4;
-    
+
     return {value: AIR, level};
 }
 
@@ -206,6 +206,7 @@ export async function calculateHLTH(objectId) {
     }
 	
 	const HLTV = calcObj.births / calcObj.population;
+    console.log(HLTV, calcObj.births / calcObj.population)
 	let level = 0;
 	
 	if(HLTV <= 20 ) level = 3;

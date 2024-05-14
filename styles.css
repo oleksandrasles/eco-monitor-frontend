@@ -39,16 +39,19 @@ button {
     font-weight: bold;
 }
 
+.leaflet-popup-content {
+    font-size: 12px !important;
+}
+
 .detailsButton {
-    width: 100%;
+    width: 50%;
     border: 1px solid black;
     border-radius: 10px;
     color:black;
-    padding: 2px 2px !important;
-    margin-top: 2px !important;
+    padding: 5px 5px !important;
+    margin: 2px 0 0 !important;
     text-align: center;
     text-decoration: none;
-    font-size: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-family: Arial, sans-serif; 
@@ -56,6 +59,14 @@ button {
 .detailsButton:hover {
     background-color: #a7b7a8; 
     
+}
+
+.lvl_1, .lvl_2, .lvl_3, .lvl_4, .lvl_5 {
+    padding: 2px;
+    border-radius: 5px;
+
+    font-size: 12px;
+    text-align: center;
 }
 
 .lvl_1 {
